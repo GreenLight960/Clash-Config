@@ -1,0 +1,322 @@
+# 个人配置, 仅供参考, 请根据实际信息与个人喜好自行修改
+# Update Time: 2024-10-28 20:07
+# By: AC
+
+allow-lan: false
+ipv6: false
+find-process-mode: always
+tcp-concurrent: true
+global-client-fingerprint: chrome
+profile:
+  store-selected: true
+  store-fake-ip: true
+unified-delay: true
+geodata-mode: true
+geodata-loader: standard
+geo-auto-update: true
+geo-update-interval: 168
+
+Global-DNS-Server: &GDS
+  - https://cloudflare-dns.com/dns-query
+  - https://dns.google/dns-query
+
+dns:
+  cache-algorithm: arc
+  enable: true
+  respect-rules: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  default-nameserver: 
+    - system
+    - tls://8.8.8.8:853
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - '*'
+    - +.lan
+    - +.local
+    - +.msftconnecttest.com
+    - +.msftncsi.com
+    - localhost.ptlogin2.qq.com
+    - localhost.sec.qq.com
+    - localhost.work.weixin.qq.com
+    - '*.srv.nintendo.net'
+    - '*.stun.playstation.net'
+    - xbox.*.microsoft.com
+    - '*.xboxlive.com'
+    - time.*.com
+    - ntp.*.com
+    - +.market.xiaomi.com
+  nameserver-policy:
+    rule-set:Advertising,ZhihuAds,EasyPrivacy,BlockHttpDNS,MIUIPrivacy: rcode://success
+    rule-set:BiliBili,SteamCN,Lan,ChinaMax,applications: system
+    geosite:bilibili@!cn,steam: *GDS
+    rule-set:Steam,Global: *GDS
+  nameserver:
+    - system
+  fallback: *GDS
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+  direct-nameserver: system
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
+
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: false
+  sniff:
+    HTTP:
+      ports:
+        - 80
+        - 443
+        - 8080-8880
+      override-destination: true
+    TLS:
+      ports:
+        - 443
+        - 8443
+    QUIC:
+      ports:
+        - 443
+        - 8443
+  skip-domain:
+    - '*.rc.sunlogin.net'
+    - '*.rc03.oray.com'
+    - +.push.apple.com
+
+tun:
+  enable: true
+  stack: gvisor
+  auto-route: true
+  auto-detect-interface: true
+  dns-hijack:
+    - any:53
+  mtu: 1492
+  strict-route: true
+  route-exclude-address:
+    - 192.168.0.0/16
+    - 172.16.0.0/12
+    - 10.0.0.0/8
+  exclude-package:
+    - com.cnspeedtest.globalspeed # 全球网测
+    - com.huawei.genexcloud.speedtest # 花瓣测速
+    - com.oray.sunlogin # 向日葵远程控制
+    - com.netease.uuremote # GameViewer
+
+Proxies-Servers-Config: &PSC # 以 Trojan 协议举例
+  type: trojan
+  server: example.com # (需要自行替换)
+  ip-version: ipv4
+  password: password # (需要自行替换)
+  udp: true
+  tfo: true
+  sni: example.com # (需要自行替换)
+  skip-cert-verify: true
+
+proxies:
+  - name: 🇭🇰 Hong Kong 01
+    port: 10001 # (需要自行替换)
+    <<: *PSC
+  - name: 🇭🇰 Hong Kong 02
+    port: 10002
+    <<: *PSC
+  - name: 🇭🇰 Hong Kong 03
+    port: 10003
+    <<: *PSC
+  - name: 🇯🇵 Japan 01
+    port: 10011
+    <<: *PSC
+  - name: 🇯🇵 Japan 02
+    port: 10012
+    <<: *PSC
+  - name: 🇯🇵 Japan 03
+    port: 10013
+    <<: *PSC
+  - name: 🇺🇸 United States 01
+    port: 10021
+    <<: *PSC
+  - name: 🇺🇸 United States 02
+    port: 10022
+    <<: *PSC
+  - name: 🇺🇸 United States 03
+    port: 10023
+    <<: *PSC
+  - name: v1.1.0α # (自定义)
+    port: 10001
+    <<: *PSC
+  - name: UD.2024-10-28
+    port: 10001
+    <<: *PSC
+  - name: 'By: AC'
+    port: 10001
+    <<: *PSC
+
+All-Regions-Nodes: &ARN
+  proxies:
+    - Main
+    - 🇭🇰 Hong Kong [LB] # [LB] = Load balance (负载均衡)
+    - 🇯🇵 Japan [LB]
+    - 🇺🇸 United States [LB]
+    - 🇭🇰 Hong Kong
+    - 🇯🇵 Japan
+    - 🇺🇸 United States
+
+Proxy-Groups-Type:
+  Select: &PGT
+    type: select
+    url: https://www.gstatic.com/generate_204
+  Load-balance: &PGTL
+    type: load-balance
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    strategy: consistent-hashing
+    hidden: true
+
+Regions-Groups:
+  HK: &RGHK
+    proxies:
+    - 🇭🇰 Hong Kong 01
+    - 🇭🇰 Hong Kong 02
+    - 🇭🇰 Hong Kong 03
+  JP: &RGJP
+    proxies:
+      - 🇯🇵 Japan 01
+      - 🇯🇵 Japan 02
+      - 🇯🇵 Japan 03
+  US: &RGUS
+    proxies:
+      - 🇺🇸 United States 01
+      - 🇺🇸 United States 02
+      - 🇺🇸 United States 03
+
+proxy-groups:
+- name: Main
+  <<: *PGT
+  proxies:
+    - 🇭🇰 Hong Kong [LB]
+    - 🇯🇵 Japan [LB]
+    - 🇺🇸 United States [LB]
+    - 🇭🇰 Hong Kong
+    - 🇯🇵 Japan
+    - 🇺🇸 United States
+  icon: example.com # (自定义)
+- name: Info # (自定义)
+  type: select
+  proxies:
+    - DIRECT
+    - v1.1.0α
+    - UD.2024-10-28
+    - 'By: AC'
+  url: https://connectivitycheck.platform.hicloud.com/generate_204
+  icon: example.com
+- name: Ad Hijacking # 广告拦截
+  type: select
+  proxies:
+    - REJECT
+    - REJECT-DROP
+    - PASS
+    - DIRECT
+  icon: example.com
+- name: Steam
+  <<: [*PGT, *ARN]
+  icon: example.com
+- name: bilibili
+  <<: *PGT
+  proxies:
+    - DIRECT
+    - Main
+    - 🇭🇰 Hong Kong [LB]
+    - 🇭🇰 Hong Kong
+  icon: example.com
+- name: Adobe Activation # Adobe 激活服务器
+  <<: *PGT
+  proxies:
+  - PASS
+  - REJECT
+  icon: example.com
+- name: 🇭🇰 Hong Kong [LB]
+  <<: [*PGTL, *RGHK]
+- name: 🇯🇵 Japan [LB]
+  <<: [*PGTL, *RGJP]
+- name: 🇺🇸 United States [LB]
+  <<: [*PGTL, *RGUS]
+- name: 🇭🇰 Hong Kong
+  <<: [*PGT, *RGHK]
+- name: 🇯🇵 Japan
+  <<: [*PGT, *RGJP]
+- name: 🇺🇸 United States
+  <<: [*PGT, *RGUS]
+
+Rule-Providers-Format: &RPF
+    type: http
+    interval: 604800
+    proxy: Main
+    behavior: classical
+
+rule-providers:
+  Advertising:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Advertising/Advertising_Classical_No_Resolve.yaml
+    <<: *RPF
+  ZhihuAds:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/ZhihuAds/ZhihuAds_No_Resolve.yaml
+    <<: *RPF
+  EasyPrivacy:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/EasyPrivacy/EasyPrivacy_Classical_No_Resolve.yaml
+    <<: *RPF
+  BlockHttpDNS:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/BlockHttpDNS/BlockHttpDNS_No_Resolve.yaml
+    <<: *RPF
+  MIUIPrivacy:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/MIUIPrivacy/MIUIPrivacy_No_Resolve.yaml
+    <<: *RPF
+  Lan:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Lan/Lan_No_Resolve.yaml
+    <<: *RPF
+  ChinaMax:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/ChinaMax/ChinaMax_Classical_No_IPv6_No_Resolve.yaml
+    <<: *RPF
+  applications:
+    url: https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/applications.txt
+    <<: *RPF
+  BiliBili:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/BiliBili/BiliBili_No_Resolve.yaml
+    <<: *RPF
+  Steam:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Steam/Steam_No_Resolve.yaml
+    <<: *RPF
+  SteamCN:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/SteamCN/SteamCN_No_Resolve.yaml
+    <<: *RPF
+  AdobeActivation:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/AdobeActivation/AdobeActivation_No_Resolve.yaml
+    <<: *RPF
+  Global:
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Global/Global_Classical_No_Resolve.yaml
+    <<: *RPF
+
+rules:
+  - IP-CIDR,8.8.8.8/32,Main,no-resolve
+  - DOMAIN,cloudflare-dns.com,Main
+  - DOMAIN,dns.google,Main
+  - RULE-SET,Advertising,Ad Hijacking
+  - RULE-SET,ZhihuAds,Ad Hijacking
+  - RULE-SET,EasyPrivacy,Ad Hijacking
+  - RULE-SET,BlockHttpDNS,Ad Hijacking
+  - RULE-SET,MIUIPrivacy,Ad Hijacking
+  - GEOSITE,bilibili@!cn,Main
+  - RULE-SET,BiliBili,bilibili
+  - RULE-SET,SteamCN,DIRECT
+  - GEOSITE,steam,Steam
+  - RULE-SET,Steam,Steam
+  - GEOSITE,adobe-activation,Adobe Activation
+  - RULE-SET,AdobeActivation,Adobe Activation
+  - RULE-SET,Lan,DIRECT
+  - RULE-SET,ChinaMax,DIRECT
+  - RULE-SET,applications,DIRECT
+  - GEOIP,CN,DIRECT,no-resolve
+  - MATCH,Main
