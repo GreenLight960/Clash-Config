@@ -1,5 +1,5 @@
 # 个人配置, 仅供参考, 请根据实际信息与个人喜好自行修改
-# Update Time: 2024-11-13 20:43
+# Update Time: 2024-11-14 20:00
 # By: AC
 
 allow-lan: false
@@ -15,16 +15,15 @@ geodata-mode: true
 geodata-loader: standard
 geo-auto-update: true
 geo-update-interval: 168
-DNS-Server:
-  Global-DoH: &GLD
-    - https://cloudflare-dns.com/dns-query
-    - https://dns.google/dns-query
+Global-DoH: &GDH
+  - https://cloudflare-dns.com/dns-query
+  - https://dns.google/dns-query
 dns:
   cache-algorithm: arc
   enable: true
   respect-rules: true
   listen: 0.0.0.0:1053
-  ipv6: false
+  ipv6: true
   default-nameserver: 
     - system
     - tls://8.8.8.8:853
@@ -53,14 +52,15 @@ dns:
   nameserver-policy:
     rule-set:Advertising,ZhihuAds,EasyPrivacy,BlockHttpDNS,MIUIPrivacy: rcode://success
     rule-set:BiliBili,SteamCN,Lan,ChinaMax,applications: system
-    geosite:bilibili@!cn,steam: *GLD
-    rule-set:Steam,Global: *GLD
+    geosite:bilibili@!cn,steam: *GDH
+    rule-set:Steam,Global: *GDH
   nameserver:
     - system
-  fallback: *GLD
+  fallback: *GDH
   proxy-server-nameserver:
     - https://doh.pub/dns-query
-  direct-nameserver: system
+  direct-nameserver:
+    - system
   fallback-filter:
     geoip: true
     geoip-code: CN
@@ -93,6 +93,7 @@ sniffer:
     - +.push.apple.com
     - '*.oray.com'
     - '*.sunlogin.net'
+
 tun:
   enable: true
   stack: mixed
@@ -150,10 +151,10 @@ proxies:
   - name: 🇺🇸 United States 03
     port: 10023
     <<: *PSC
-  - name: v1.1.1α # (自定义)
+  - name: v1.1.1α1 # (自定义)
     port: 10001
     <<: *PSC
-  - name: UD.2024-11-13
+  - name: UD.2024-11-14
     port: 10001
     <<: *PSC
   - name: 'By: AC'
@@ -213,8 +214,8 @@ proxy-groups:
   type: select
   proxies:
     - DIRECT
-    - v1.1.1α
-    - UD.2024-11-13
+    - v1.1.1α1
+    - UD.2024-11-14
     - 'By: AC'
   url: https://connectivitycheck.platform.hicloud.com/generate_204
   icon: example.com
