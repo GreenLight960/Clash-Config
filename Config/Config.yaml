@@ -153,10 +153,10 @@ proxies:
   - name: 🇺🇸 United States 03
     port: 10023
     <<: *PSC
-  - name: v1.1.1α1 # (自定义)
+  - name: v1.1.1α2 # (自定义)
     port: 10001
     <<: *PSC
-  - name: UD.2024-11-14
+  - name: UD.2024-11-24
     port: 10001
     <<: *PSC
   - name: 'By: AC'
@@ -216,8 +216,8 @@ proxy-groups:
   type: select
   proxies:
     - DIRECT
-    - v1.1.1α1
-    - UD.2024-11-14
+    - v1.1.1α2
+    - UD.2024-11-24
     - 'By: AC'
   url: https://connectivitycheck.platform.hicloud.com/generate_204
   icon: example.com
